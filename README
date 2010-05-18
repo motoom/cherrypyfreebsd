@@ -1,0 +1,40 @@
+
+
+Integration with FreeBSD's rc.conf / rc.d system
+
+This describes how to start a cherrypy site using its built-in HTTP server
+and cherryd in such a way that it integrates nicely with FreeBSD's rc system.
+FreeBSD uses a text file /etc/rc.conf in combination with a set of
+scripts in /usr/local/etc/rc.d to start local daemons.
+
+I set out to achieve the following:
+
+- automatically start the site when the server boots
+- being able to stop, start and restart the site
+- no need to install a third-party web server like Apache
+- compatible with FreeBSD's rc system and /var/run pidfiles
+- uses cherryd for daemonization
+- able to use standard port 80
+
+In the following example I have my site defined in chsite.py and chsite.conf,
+which both reside in /www.
+
+First, make sure the cherryd script itself is executable.
+In a standard install of cherrypy under FreeBSD:
+
+    chmod a+x /usr/local/lib/python2.5/site-packages/cherrypy/cherryd
+
+Include the following lines in /etc/rc.conf:
+
+    cherryd_enable="YES"
+    cherryd_wwwdir="/www"
+    cherryd_flags="-c chsite.conf -i chsite"
+
+Put the script 'cherryd' in /usr/local/etc/rc.d, and don't forget to make it executable.
+
+After these changes, the site should start automatically when the machine is restarted.
+To stop, start, restart the site you'd use the commands:
+
+# /usr/local/etc/rc.d/cherryd stop
+# /usr/local/etc/rc.d/cherryd start
+# /usr/local/etc/rc.d/cherryd restart
